@@ -1,3 +1,26 @@
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";";
+}
+
 //global UI variables
 var globalCanvas;
 var globalButton1;
@@ -23,6 +46,11 @@ function initializeGame(canvas, button1, button2, button3, button4, textEntry) {
     globalButton3 = button3;
     globalButton4 = button4;
     globalTextEntry = textEntry;
+    
+    globalStoryState = getCookie("storyState");
+    globalPlayerName = getCookie("playerName");
+    forestDecisionState = getCookie("forestDecision");
+
     newGame();
 }
 //link to the debug UI controls
@@ -84,7 +112,9 @@ function debugLog(text) {
 //reset the UI elements and reset the story
 function newGame() {
     closeUI();
-    globalStoryState = "Intro";
+    if (globalStoryState == "") {
+        globalStoryState = "Intro";
+    }
     advanceStory();
 }
 //draw an image in the upper two thirds of the canvas.
@@ -94,7 +124,7 @@ function drawImage(imageName) {
     try {
         var base_image = new Image();
         base_image.src = 'img/' + imageName + '.png';
-        base_image.onload = function() {
+        base_image.onload = function () {
             var ctx = globalCanvas.getContext("2d");
             ctx.drawImage(base_image, 0, 0);
         }
@@ -244,7 +274,7 @@ function setWriter(specialTxt, button1Txt, button2Txt, button3Txt, button4Txt, a
     button3TxtActual = button3Txt;
     button4TxtActual = button4Txt;
     acceptTextTrue = acceptTextBool
-    typeWriter()
+    typeWriter();
 }
 
 function advanceStory(buttonNumber) {
@@ -254,28 +284,35 @@ function advanceStory(buttonNumber) {
         drawImage("homescreen");
         setWriter("Your life is about to change forever. But first, who are you? Enter your name to start your Journey! In Migrant Trail, you take on the role and hopefully, gain some insight into the hardships of those fleeing Myanmar due to the Rohingya Crisis.", "Enter your name", "", "", "", true);
         globalStoryState = "EnterName";
+        setCookie("storyState", globalStoryState, 365);
     } else if (globalStoryState == "EnterName") {
         if (globalTextEntry.value.length > 0) {
             globalPlayerName = globalTextEntry.value;
-            //Dhevin: Fix this immage
-            drawImage("Raqqa");
-            setWriter("You've been living in a village near Kyauktaw, a small town in Northern Rakhine state, in Myanmar, for the past 24 years." + globalPlayerName + ", You've just found out from someone nearby that the military's coming to your village, which is one with a large Rohingya population.",
-                "I know they can immediately tell I'm Rohingya if they see me, but I will hide in my house and hope they pass by",
-                "I've heard and seen the horrible things they do, I'm scared. I'm going to pack my most essential belongings and run to the forest. The Military won't look there.",
-                "I have a bad feeling about this. I don't think I'll be able to return, I'm going to pack my important belongings, take that car outside my house, and leave.",
-                "We might not be citizens, but all the military wants to do is make sure we aren't part of the ARSA, a Rohingyan paramilitary group. Once I tell them I have nothing to do with that I'll be fine ",
-                false)
-            if (buttonNumber == 2) {
-                globalStoryState = "ForestDecision";
-            } else {
-                globalStoryState = "EndGame";
-                buttonNumber = 0;
-            }
+            setCookie("playerName", globalPlayerName, 365);
+            globalStoryState = "SceneAfterIntro";
+            setCookie("storyState", globalStoryState, 365);
+            advanceStory();
         } else {
-            drawText("Enter a name in the box below. Your name must be at least one character long.");
-            acceptText();
-            setButton(1, "Enter your name");
-            globalStoryState = "EnterName";
+            globalStoryState = "Intro";
+            setCookie("storyState", globalStoryState, 365);
+            advanceStory();
+        }
+    } else if (globalStoryState == "SceneAfterIntro") {
+        //Dhevin: Fix this immage
+        drawImage("Raqqa");
+        setWriter("You've been living in a village near Kyauktaw, a small town in Northern Rakhine state, in Myanmar, for the past 24 years." + globalPlayerName + ", You've just found out from someone nearby that the military's coming to your village, which is one with a large Rohingya population.",
+            "I know they can immediately tell I'm Rohingya if they see me, but I will hide in my house and hope they pass by",
+            "I've heard and seen the horrible things they do, I'm scared. I'm going to pack my most essential belongings and run to the forest. The Military won't look there.",
+            "I have a bad feeling about this. I don't think I'll be able to return, I'm going to pack my important belongings, take that car outside my house, and leave.",
+            "We might not be citizens, but all the military wants to do is make sure we aren't part of the ARSA, a Rohingyan paramilitary group. Once I tell them I have nothing to do with that I'll be fine ",
+            false)
+        if (buttonNumber == 2) {
+            globalStoryState = "ForestDecision";
+            setCookie("storyState", globalStoryState, 365);
+        } else if (buttonNumber == 1 || buttonNumber == 3 || buttonNumber == 4) {
+            globalStoryState = "EndGame";
+            setCookie("storyState", globalStoryState, 365);
+            buttonNumber = 0;
         }
     } else if (globalStoryState == "ForestDecision") {
         drawText("You've succesfully ran away to the forest. The military won't find you here, but you can still see your village through the trees. A while later, you see military vehicles entering your village.")
@@ -286,7 +323,9 @@ function advanceStory(buttonNumber) {
         if (buttonNumber == 4) {
             //to store decision
             forestDecisionState = "KeepWalking";
+            setCookie("forestDecision", forestDecisionState, 365);
             globalStoryState = "ChooseCareer";
+            setCookie("storyState", globalStoryState, 365);
         }
     } else if (globalStoryState == "ChooseCareer") {
         if (forestDecisionState == "KeepWalking") {
@@ -300,7 +339,9 @@ function advanceStory(buttonNumber) {
         drawText("After a long journey you feel tired and lay down rest. You feel you tried your best. GAME OVER")
         setButton(1, "Try Again")
         if (buttonNumber == 1) {
-            window.location.reload();
+            globalStoryState = "Intro";
+            setCookie("storyState", globalStoryState, 365);
+            newGame();
         }
     }
 }
