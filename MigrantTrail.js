@@ -1,3 +1,24 @@
+var globalActiveTimerValue = 0;
+var globalActiveTimer;
+var globalTimerFail;
+
+function timerFunction(timlensec, failchange) {
+    globalActiveTimerValue = timlensec;
+    globalTimerFail = failchange;
+    globalActiveTimer = setInterval(function timerFunctionActual() {
+        globalActiveTimerValue -= 1;
+        globalTimerText.style.display = "initial";
+        globalTimerText.innerHTML = globalActiveTimerValue;
+        if (globalActiveTimerValue <= 0) {
+            captureButton(globalTimerFail);
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(globalActiveTimer);
+}
+
 function getCookie(cname) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
@@ -28,13 +49,14 @@ var globalButton2;
 var globalButton3;
 var globalButton4;
 var globalTextEntry;
+var globalTimerText
 //global game variables
 var globalStoryState;
 var globalPlayerName;
 var globalPlayerProfession;
 var forestDecisionState;
 //bind the user interface elements to global variables and start a new game
-function initializeGame(canvas, button1, button2, button3, button4, button5, textEntry) {
+function initializeGame(canvas, button1, button2, button3, button4, button5, textEntry, timerText) {
     globalCanvas = canvas;
     globalButton1 = button1;
     globalButton2 = button2;
@@ -42,6 +64,7 @@ function initializeGame(canvas, button1, button2, button3, button4, button5, tex
     globalButton4 = button4;
     globalButton5 = button5;
     globalTextEntry = textEntry;
+    globalTimerText = timerText
 
     globalStoryState = getCookie("storyState");
     globalPlayerName = getCookie("playerName");
@@ -153,6 +176,7 @@ function setButton(buttonNumber, text) {
 //pass the button number that was clicked to the story
 //and reset the UI
 function captureButton(buttonNumber) {
+    stopTimer();
     closeUI();
     advanceStory(buttonNumber);
 }
@@ -164,6 +188,7 @@ function closeUI() {
     globalButton4.style.display = "none";
     globalButton5.style.display = "none";
     globalTextEntry.style.display = "none";
+    globalTimerText.style.display = "none";
 }
 //the game story
 //
@@ -173,7 +198,7 @@ function closeUI() {
 //in each story stage, the image and/or text have to be reset with drawImage and drawText
 //additionally, the UI needs to be set up as it closes after every user input.
 var i = 0;
-var txt = 'Your life is about to change forever. But first, who are you? Enter your name to start your Journey! In Migrant Trail, you take on the role and hopefully, gain some insight into the hardships of those fleeing Myanmar due to the Rohingya Crisis.';
+var txt = '';
 var speed = 1;
 var tempText = "";
 var button1TxtActual = "";
@@ -259,28 +284,35 @@ function advanceStory(buttonNumber) {
         }
     } else if (globalStoryState == "SceneAfterIntro") {
         //Dhevin: Fix this immage
-        drawImage("Raqqa");
-        setWriter("You've been living in a village near Kyauktaw, a small town in Northern Rakhine state, in Myanmar, for the past 24 years." + globalPlayerName + ", You've just found out from someone nearby that the military's coming to your village, which is one with a large Rohingya population.",
-            "I know they can immediately tell I'm Rohingya if they see me, but I will hide in my house and hope they pass by",
-            "I've heard and seen the horrible things they do, I'm scared. I'm going to pack my most essential belongings and run to the forest. The Military won't look there.",
-            "I have a bad feeling about this. I don't think I'll be able to return, I'm going to pack my important belongings, take that car outside my house, and leave.",
-            "We might not be citizens, but all the military wants to do is make sure we aren't part of the ARSA, a Rohingyan paramilitary group. Once I tell them I have nothing to do with that I'll be fine ",
-            "",
-            false)
+            drawImage("Raqqa");
+            setWriter("You've been living in a village near Kyauktaw, a small town in Northern Rakhine state, in Myanmar, for the past 24 years." + globalPlayerName + ", You've just found out from someone nearby that the military's coming to your village, which is one with a large Rohingya population.",
+                "I know they can immediately tell I'm Rohingya if they see me, but I will hide in my house and hope they pass by",
+                "I've heard and seen the horrible things they do, I'm scared. I'm going to pack my most essential belongings and run to the forest. The Military won't look there.",
+                "I have a bad feeling about this. I don't think I'll be able to return, I'm going to pack my important belongings, take that car outside my house, and leave.",
+                "We might not be citizens, but all the military wants to do is make sure we aren't part of the ARSA, a Rohingyan paramilitary group. Once I tell them I have nothing to do with that I'll be fine ",
+                "",
+                false)
+                
+        
         if (buttonNumber == 2) {
             globalStoryState = "ForestDecision";
             setCookie("storyState", globalStoryState, 365);
+            advanceStory();
         } else if (buttonNumber == 1 || buttonNumber == 3 || buttonNumber == 4) {
             globalStoryState = "EndGame";
             setCookie("storyState", globalStoryState, 365);
             advanceStory();
+        } else{
+            timerFunction(5, 1);
         }
     } else if (globalStoryState == "ForestDecision") {
-        drawText("You've succesfully ran away to the forest. The military won't find you here, but you can still see your village through the trees. A while later, you see military vehicles entering your village.")
-        setButton(1, "I've planned this situation with my family. They might've been out but they know that they need to go hide in the woods, I'll look for them.");
-        setButton(2, "I haven't got a family, but there must be some other people from the village who escape. I'll wait for them, we have a larger chance of survival if we stick together for the long journey ahead");
-        setButton(3, "The military's just here to look for terrorists, they'll leave when they realize no one in our village is one. I'll just wait for them to leave and then head back.");
-        setButton(4, "I can't take the risk of military finding me. I have everything I need to survive for now with me. I'm going to keep walking and find a safe place.");
+        setWriter("You've succesfully ran away to the forest. The military won't find you here, but you can still see your village through the trees. A while later, you see military vehicles entering your village.",
+            "I've planned this situation with my family. They might've been out but they know that they need to go hide in the woods, I'll look for them.",
+            "I haven't got a family, but there must be some other people from the village who escape. I'll wait for them, we have a larger chance of survival if we stick together for the long journey ahead",
+            "The military's just here to look for terrorists, they'll leave when they realize no one in our village is one. I'll just wait for them to leave and then head back.",
+            "I can't take the risk of military finding me. I have everything I need to survive for now with me. I'm going to keep walking and find a safe place.",
+            "",
+            false)
         if (buttonNumber == 4) {
             //to store decision
             forestDecisionState = "KeepWalking";
@@ -290,15 +322,22 @@ function advanceStory(buttonNumber) {
         }
     } else if (globalStoryState == "ChooseCareer") {
         if (forestDecisionState == "KeepWalking") {
-            drawText("As you prepare to walk away from the only life you've known, having waited to make sure you aren't making a mistake by leaving, you watch your home be burned to the ground. You remember the life you've lived there")
-            setButton(1, "Growing up working on a small farm, I've spent all your time in the village, getting to know all of the neighbors and almost everyone in the small village. I'm most probably never going to see any of them again, if any of them were even lucky enough to escape. The physical strenght and knowledge of the countryside you've gained from farming will help in your journey")
-            setButton(2, "Having spent my childhood walking to the nearby town of Kyauktauw to complete my highschool education, I now spend my time teaching the younger children in the village to try and make up for the education they're denied. I wanted to make sure they all have basic skills like reading and writing to make sure they can make a life for themselves when they leave the country.")
-            setButton(3, "I've been working as an assistant at the local clinic, while I couldn't become a doctor since we can't go to university, I've been travelling to Kyautaw everyday for the past 4 years, learning from a doctor there. I've helped many people both from my village and in the town with sickness, injury, and old age.")
-            setButton(4, "I run a small shop in my village that sells groceries, stationary, some medicine, and cigarettes and coffee. It's where everyone goes after lunch, before they get back to work. I couldn't get anything from there; and have lost all the money in there.")
+            setWriter("As you prepare to walk away from the only life you've known, having waited to make sure you aren't making a mistake by leaving, you watch your home be burned to the ground. You remember the life you've lived there",
+                "Growing up working on a small farm, I've spent all your time in the village, getting to know all of the neighbors and almost everyone in the small village. I'm most probably never going to see any of them again, if any of them were even lucky enough to escape. The physical strenght and knowledge of the countryside you've gained from farming will help in your journey",
+                "Having spent my childhood walking to the nearby town of Kyauktauw to complete my highschool education, I now spend my time teaching the younger children in the village to try and make up for the education they're denied. I wanted to make sure they all have basic skills like reading and writing to make sure they can make a life for themselves when they leave the country.",
+                "I've been working as an assistant at the local clinic, while I couldn't become a doctor since we can't go to university, I've been travelling to Kyautaw everyday for the past 4 years, learning from a doctor there. I've helped many people both from my village and in the town with sickness, injury, and old age.",
+                "I run a small shop in my village that sells groceries, stationary, some medicine, and cigarettes and coffee. It's where everyone goes after lunch, before they get back to work. I couldn't get anything from there; and have lost all the money in there.",
+                "",
+                false);
         }
     } else if (globalStoryState == "EndGame") {
-        drawText("After a long journey you feel tired and lay down rest. You feel you tried your best. GAME OVER")
-        setButton(1, "Try Again")
+        setWriter("After a long journey you feel tired and lay down rest. You feel you tried your best. GAME OVER",
+            "Try Again",
+            "",
+            "",
+            "",
+            "",
+            false);
         if (buttonNumber == 1) {
             globalStoryState = "Intro";
             setCookie("storyState", globalStoryState, 365);
