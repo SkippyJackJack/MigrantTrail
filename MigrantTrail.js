@@ -33,11 +33,6 @@ var globalStoryState;
 var globalPlayerName;
 var globalPlayerProfession;
 var forestDecisionState;
-//debug variables
-//NOTE: ALL GLOBAL VARIABLES MUST START WITH "global" OR THE WILL NOT BE EDITABLE BY THE DEBUG TEXT INPUT FEATURE
-var globalDebugTextInput;
-var globalDebugSendCommand;
-var globalDebugTextOutput;
 //bind the user interface elements to global variables and start a new game
 function initializeGame(canvas, button1, button2, button3, button4, textEntry) {
     globalCanvas = canvas;
@@ -46,68 +41,12 @@ function initializeGame(canvas, button1, button2, button3, button4, textEntry) {
     globalButton3 = button3;
     globalButton4 = button4;
     globalTextEntry = textEntry;
-    
+
     globalStoryState = getCookie("storyState");
     globalPlayerName = getCookie("playerName");
     forestDecisionState = getCookie("forestDecision");
 
     newGame();
-}
-//link to the debug UI controls
-function initializeDebug(debugTextInput, debugSendCommand, debugTextOutput) {
-    globalDebugTextInput = debugTextInput;
-    globalDebugSendCommand = debugSendCommand;
-    globalDebugTextOutput = debugTextOutput;
-    debugLog("Debug Log:");
-}
-//parse the text in the debug text input box to assign global variable values and/or trigger game states
-//One variable assign per line. Assigning globalStoryState also triggers a reset of the story state
-//
-// for example:
-//  globalPlayerName = "David"
-//  globalStoryState = "EnterName"
-// would set the two global variables and reset the story state by calling advanceStory();
-function debugSendCommand() {
-    var cmd = globalDebugTextInput.value;
-    var setStoryState = false;
-    do {
-        //split the debug text into single lines
-        var indexOfNewLine = cmd.indexOf("\n");
-        //include the last line without a newline character
-        if (indexOfNewLine < 0) { indexOfNewLine = cmd.length; }
-        var line = cmd.substr(0, indexOfNewLine);
-        //check to see if the line follows the format "variable = value"
-        if (line.includes("=")) {
-            //pull the variable name and value
-            var variable = line.substr(0, line.indexOf("="));
-            //do not allow any non-alphanumeric characters in the variable name;
-            variable = variable.replace(/\W|_/g, "");
-            var value = line.substr(line.indexOf("=") + 1, line.length);
-            value = value.trim();
-            //only allow editing of variables that are global and start with the keyword "global"
-            if (variable.substring(0, 6) == "global") {
-                try {
-                    //set variable = value
-                    eval(variable + " = " + value);
-                    //if the variable was globalStoryState, also flag a reset of the story later
-                    if (variable == "globalStoryState") { setStoryState = true; }
-                    debugLog("Set " + variable + " to " + value);
-                } catch (e) {
-                    debugLog("Failed to evaluate: " + variable + " = " + value + "\nIs " + variable + " a global variable?");
-                    debugLog(e);
-                }
-            }
-        }
-        cmd = cmd.substr(indexOfNewLine + 1, cmd.length);
-    } while (cmd.length > 0);
-    //if globalStoryState was changed, reset the story
-    if (setStoryState) {
-        advanceStory();
-    }
-}
-//add "text" to the debugTextOutput box
-function debugLog(text) {
-    globalDebugTextOutput.value = globalDebugTextOutput.value + "\n" + text;
 }
 //reset the UI elements and reset the story
 function newGame() {
@@ -129,8 +68,8 @@ function drawImage(imageName) {
             ctx.drawImage(base_image, 0, 0);
         }
     } catch (e) {
-        debugLog("Failed to load : img/" + imageName + ".png does it exist?");
-        debugLog(e);
+        console.Log("Failed to load : img/" + imageName + ".png does it exist?");
+        console.Log(e);
     }
 }
 //draw a text box in the lower thrid of the canvas
@@ -178,12 +117,13 @@ function drawText(text) {
         ctx.fillText(textLine, 30, 335 + 30 * i);
     }
     //if there is still text left, prompt a continue
-    debugLog(text);
 }
 //make the text box visible. optional parameter to enter
 //default text into the textbox
 function acceptText(text) {
-    if (typeof text === 'undefined') { text = ""; }
+    if (typeof text === 'undefined') {
+        text = "";
+    }
     globalTextEntry.style.display = "initial";
     globalTextEntry.value = text;
 }
@@ -278,8 +218,11 @@ function setWriter(specialTxt, button1Txt, button2Txt, button3Txt, button4Txt, a
 }
 
 function advanceStory(buttonNumber) {
+    console.log(globalStoryState);
     //the buttonNumber variable is an optional parameter, so set it to zero if it is unused
-    if (typeof buttonNumber === 'undefined') { buttonNumber = 0; }
+    if (typeof buttonNumber === 'undefined') {
+        buttonNumber = 0;
+    }
     if (globalStoryState == "Intro") {
         drawImage("homescreen");
         setWriter("Your life is about to change forever. But first, who are you? Enter your name to start your Journey! In Migrant Trail, you take on the role and hopefully, gain some insight into the hardships of those fleeing Myanmar due to the Rohingya Crisis.", "Enter your name", "", "", "", true);
@@ -312,7 +255,7 @@ function advanceStory(buttonNumber) {
         } else if (buttonNumber == 1 || buttonNumber == 3 || buttonNumber == 4) {
             globalStoryState = "EndGame";
             setCookie("storyState", globalStoryState, 365);
-            buttonNumber = 0;
+            advanceStory();
         }
     } else if (globalStoryState == "ForestDecision") {
         drawText("You've succesfully ran away to the forest. The military won't find you here, but you can still see your village through the trees. A while later, you see military vehicles entering your village.")
