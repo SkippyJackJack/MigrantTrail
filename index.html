@@ -1,12 +1,15 @@
 <html>
     <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
     <link rel="stylesheet" type="text/css" href="stylesheet.css">
-    </head>
-<body onLoad = "start()">
-    <script>function start() {
-        initializeGame(gameCanvas, button1, button2, button3, button4, button5, textEntry);
-    }
+</head>
+
+<body onLoad="start()">
+    <script>
+        function start() {
+            initializeGame(gameCanvas, button1, button2, button3, button4, button5, textEntry, timer);
+        }
     </script>
     <script src="MigrantTrail.js" type="text/javascript"></script>
 
@@ -15,6 +18,7 @@
     <div class ="wrapper">
         <p><canvas id="gameCanvas" width="800" height="500" style="border:1px solid #d3d3d3;"></canvas></p>
     </div>
+  <p id="timer">00</p>
     <div class ="wrapper">
         <form><input id="textEntry" type="text" name="textEntry"></form>
     </div>
@@ -37,5 +41,10 @@
         </div>
     </div>
     <div class = "wrapper"><p><input id="button5" class="myButton btn-dark" type="button" value="choice 5" onclick="captureButton(5);" /></p></div>
+   <button class="button" data-sharer="twitter" data-title="Checkout Migrant Trail!" data-hashtags=""
+        data-url="https://www.migranttrailwebsite.com">Share on Twitter</button>
+    <script src="https://cdn.jsdelivr.net/npm/sharer.js@latest/sharer.min.js"></script>
     </body>
 </html> 
+
+   
