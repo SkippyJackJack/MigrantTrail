@@ -10,7 +10,7 @@ var globalTextEntry;
 var globalStoryState;
 var globalPlayerName;
 var globalPlayerProfession;
-
+var forestDecisionState;
 //debug variables
 //NOTE: ALL GLOBAL VARIABLES MUST START WITH "global" OR THE WILL NOT BE EDITABLE BY THE DEBUG TEXT INPUT FEATURE
 var globalDebugTextInput;
@@ -232,7 +232,7 @@ function advanceStory(buttonNumber) {
     
     if (globalStoryState == "Intro") {
         drawImage("homescreen");
-        drawText("Your life is about to change forever. But first, who are you? Enter your name to start your Journey! In Migrant Trail, take on the role and face the hardship of a migrant fleeing conflict in Syria.");
+        drawText("Your life is about to change forever. But first, who are you? Enter your name to start your Journey! In Migrant Trail, you take on the role and hopefully, gain some insight into the hardships of those fleeing Myanmar due to the Rohingya Crisis.");
 
         acceptText();
         setButton(1, "Enter your name");
@@ -242,15 +242,16 @@ function advanceStory(buttonNumber) {
         if (globalTextEntry.value.length > 0) {
             globalPlayerName = globalTextEntry.value;
             
+            //Dhevin: Fix this immage
             drawImage("Raqqa");
-            drawText("You and your family have been laying low in Raqqa for years now. The Islamic State has murdered many of your friends and family but you're still hoping to keep a low profile. '" + globalPlayerName + "', your mom tells you, 'Your father has been taken by IS and I hear you're next. We need to leave. Now.' You pause briefly to reflect on the life you are leaving behind: ");
+            drawText("You've been living in a village near Kyauktaw, a small town in Northern Rakhine state, in Myanmar, for the past 24 years." + globalPlayerName + ", You've just found out from someone nearby that the military's coming to your village, which is one with a large Rohingya population.");
 
-            setButton(1, "I was only a medical student, but I'm proud of the people I helped in our make-shift clinic");
-            setButton(2, "I could only ever find odd-jobs even before things fell apart. Maybe there will be new opportunities ahead");
-            setButton(3, "The hotel I used to work in is gone now, but I will miss the friends I made there");
-            setButton(4, "Even though buisness has been good at the auto shop, if I need to leave then I need to leave");
+            setButton(1, "I know they can immediately tell I'm Rohingya if they see me, but I will hide in my house and hope they pass by");
+            setButton(2, "I've heard and seen the horrible things they do, I'm scared. I'm going to pack my most essential belongings and run to the forest. The Military won't look there.");
+            setButton(3, "I have a bad feeling about this. I don't think I'll be able to return, I'm going to pack my important belongings, take that car outside my house, and leave.");
+            setButton(4, "We might not be citizens, but all the military wants to do is make sure we aren't part of the ARSA, a Rohingyan paramilitary group. Once I tell them I have nothing to do with that I'll be fine ");
             
-            globalStoryState = "ChooseProfession";
+            globalStoryState = "ChooseRoute";
         }
         else {
             drawText("Enter a name in the box below. Your name must be at least one character long.");
@@ -260,30 +261,34 @@ function advanceStory(buttonNumber) {
         }
         
     }
-    else if (globalStoryState == "ChooseProfession") {
-        if (buttonNumber == 1) {
-            drawText("You've heard stories of how dangerous the migrant trail can be. You gather your small medical kit ominously expecting it to be useful.");
-            globalPlayerProfession = "MedStudent";
+    else if (globalStoryState == "ChooseRoute") {
+        if (buttonNumber == 2) {
+            globalStoryState = "ForestDecision";
         }
-        else if (buttonNumber == 2) {
-            drawText("When times were tough you would call on your extensive contacts network for work wherever it could be found. You couldn't imagine leaving without it and tuck it into your pocket.");
-            globalPlayerProfession = "OddJobs";
-        }
-        else if (buttonNumber == 3) {
-            drawText("You had always enjoyed chatting with guests at the hotel; especially the foreigners. Over time you developed up a functional vocabulary in several languages. You don't know where your journey will take you but you expect to need to ask for some help along the way.");
-            globalPlayerProfession = "HotelClerk";
-        }
-        else if (buttonNumber == 4) {
-            drawText("Even if you owned a car, you couldn't drive it out of the city unnoticed. You take a small toolkit with you anyway. Fortune favors the well prepared, you figure.");
-            globalPlayerProfession = "Mechanic";
-        }
-        globalStoryState = "ChoosePersonalItem";
+        //todo
     }
-    else if (globalStoryState == "ChoosePersonalItem") {
-        //TODO
-    }
-    else {
-        //entered an invalid story state
-        debugLog("Story State Not Found: " + globalStoryState);
+    else if (globalStoryState == "ForestDecision") {
+            drawText("You've succesfully ran away to the forest. The military won't find you here, but you can still see your village through the trees. A while later, you see military vehicles entering your village.")
+            
+            setButton(1, "I've planned this situation with my family. They might've been out but they know that they need to go hide in the woods, I'll look for them.");
+            setButton(2, "I haven't got a family, but there must be some other people from the village who escape. I'll wait for them, we have a larger chance of survival if we stick together for the long journey ahead");
+            setButton(3, "The military's just here to look for terrorists, they'll leave when they realize no one in our village is one. I'll just wait for them to leave and then head back.");
+            setButton(4, "I can't take the risk of military finding me. I have everything I need to survive for now with me. I'm going to keep walking and find a safe place.");
+            
+            if (buttonNumber == 4) {
+                //to store decision
+                forestDecisionState = "KeepWalking";
+                globalStoryState = "ChooseCareer";
+            }
+        }
+    else if (globalStoryState == "ChooseCareer") {
+        if (forestDecisionState == "KeepWalking") {
+            drawText("As you prepare to walk away from the only life you've known, having waited to make sure you aren't making a mistake by leaving, you watch your home be burned to the ground. You remember the life you've lived there")
+            setButton(1, "Growing up working on a small farm, I've spent all your time in the village, getting to know all of the neighbors and almost everyone in the small village. I'm most probably never going to see any of them again, if any of them were even lucky enough to escape. The physical strenght and knowledge of the countryside you've gained from farming will help in your journey")
+            setButton(2, "Having spent my childhood walking to the nearby town of Kyauktauw to complete my highschool education, I now spend my time teaching the younger children in the village to try and make up for the education they're denied. I wanted to make sure they all have basic skills like reading and writing to make sure they can make a life for themselves when they leave the country.")
+            setButton(3, "I've been working as an assistant at the local clinic, while I couldn't become a doctor since we can't go to university, I've been travelling to Kyautaw everyday for the past 4 years, learning from a doctor there. I've helped many people both from my village and in the town with sickness, injury, and old age.")
+            setButton(4, "I run a small shop in my village that sells groceries, stationary, some medicine, and cigarettes and coffee. It's where everyone goes after lunch, before they get back to work. I couldn't get anything from there; and have lost all the money in there.")
+        }
     }
 }
+    
