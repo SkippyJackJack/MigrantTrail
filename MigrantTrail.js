@@ -15,6 +15,7 @@ function timerFunction(timlensec, failchange) {
     }, 1000);
 }
 
+//
 function stopTimer() {
     clearInterval(globalActiveTimer);
 }
@@ -319,6 +320,11 @@ function advanceStory(buttonNumber) {
             setCookie("forestDecision", forestDecisionState, 365);
             globalStoryState = "ChooseCareer";
             setCookie("storyState", globalStoryState, 365);
+            advanceStory();
+        } else if (buttonNumber == 1 || buttonNumber == 3 || buttonNumber == 2) {
+            globalStoryState = "EndGame";
+            setCookie("storyState", globalStoryState, 365);
+            advanceStory();
         }
     } else if (globalStoryState == "ChooseCareer") {
         if (forestDecisionState == "KeepWalking") {
@@ -329,6 +335,11 @@ function advanceStory(buttonNumber) {
                 "I run a small shop in my village that sells groceries, stationary, some medicine, and cigarettes and coffee. It's where everyone goes after lunch, before they get back to work. I couldn't get anything from there; and have lost all the money in there.",
                 "",
                 false);
+            if (buttonNumber == 1 || buttonNumber == 3 || buttonNumber == 4 || buttonNumber == 2) {
+                globalStoryState = "EndGame";
+                setCookie("storyState", globalStoryState, 365);
+                advanceStory();
+            }
         }
     } else if (globalStoryState == "EndGame") {
         setWriter("After a long journey you feel tired and lay down rest. You feel you tried your best. GAME OVER",
