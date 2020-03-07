@@ -34,12 +34,13 @@ var globalPlayerName;
 var globalPlayerProfession;
 var forestDecisionState;
 //bind the user interface elements to global variables and start a new game
-function initializeGame(canvas, button1, button2, button3, button4, textEntry) {
+function initializeGame(canvas, button1, button2, button3, button4, button5, textEntry) {
     globalCanvas = canvas;
     globalButton1 = button1;
     globalButton2 = button2;
     globalButton3 = button3;
     globalButton4 = button4;
+    globalButton5 = button5;
     globalTextEntry = textEntry;
 
     globalStoryState = getCookie("storyState");
@@ -143,6 +144,10 @@ function setButton(buttonNumber, text) {
         globalButton4.style.display = "initial";
         globalButton4.value = text;
     }
+    else if (buttonNumber == 5) {
+        globalButton5.style.display = "initial";
+        globalButton5.value = text;
+    }
 }
 //fires when one of the User Interface buttons is clicked
 //pass the button number that was clicked to the story
@@ -157,6 +162,7 @@ function closeUI() {
     globalButton2.style.display = "none";
     globalButton3.style.display = "none";
     globalButton4.style.display = "none";
+    globalButton5.style.display = "none";
     globalTextEntry.style.display = "none";
 }
 //the game story
@@ -174,6 +180,7 @@ var button1TxtActual = "";
 var button2TxtActual = "";
 var button3TxtActual = "";
 var button4TxtActual = "";
+var button5TxtActual = "";
 var acceptTextTrue = false;
 
 function typeWriter() {
@@ -195,13 +202,16 @@ function typeWriter() {
         if (button4TxtActual != "") {
             setButton(4, button4TxtActual);
         }
+        if (button5TxtActual != "") {
+            setButton(5, button5TxtActual);
+        }
         if (acceptTextTrue) {
             acceptText();
         }
     }
 }
 
-function setWriter(specialTxt, button1Txt, button2Txt, button3Txt, button4Txt, acceptTextBool) {
+function setWriter(specialTxt, button1Txt, button2Txt, button3Txt, button4Txt, button5Txt, acceptTextBool) {
     txt = specialTxt;
     tempText = "";
     i = 0;
@@ -213,6 +223,7 @@ function setWriter(specialTxt, button1Txt, button2Txt, button3Txt, button4Txt, a
     button2TxtActual = button2Txt;
     button3TxtActual = button3Txt;
     button4TxtActual = button4Txt;
+    button5TxtActual = button5Txt;
     acceptTextTrue = acceptTextBool
     typeWriter();
 }
@@ -225,7 +236,13 @@ function advanceStory(buttonNumber) {
     }
     if (globalStoryState == "Intro") {
         drawImage("homescreen");
-        setWriter("Your life is about to change forever. But first, who are you? Enter your name to start your Journey! In Migrant Trail, you take on the role and hopefully, gain some insight into the hardships of those fleeing Myanmar due to the Rohingya Crisis.", "Enter your name", "", "", "", true);
+        setWriter("Your life is about to change forever. But first, who are you? Enter your name to start your Journey! In Migrant Trail, you take on the role and hopefully, gain some insight into the hardships of those fleeing Myanmar due to the Rohingya Crisis.", 
+        "", 
+        "", 
+        "", 
+        "",
+        "Enter your name",
+        true);
         globalStoryState = "EnterName";
         setCookie("storyState", globalStoryState, 365);
     } else if (globalStoryState == "EnterName") {
@@ -248,6 +265,7 @@ function advanceStory(buttonNumber) {
             "I've heard and seen the horrible things they do, I'm scared. I'm going to pack my most essential belongings and run to the forest. The Military won't look there.",
             "I have a bad feeling about this. I don't think I'll be able to return, I'm going to pack my important belongings, take that car outside my house, and leave.",
             "We might not be citizens, but all the military wants to do is make sure we aren't part of the ARSA, a Rohingyan paramilitary group. Once I tell them I have nothing to do with that I'll be fine ",
+            "",
             false)
         if (buttonNumber == 2) {
             globalStoryState = "ForestDecision";
